@@ -1,0 +1,24 @@
+{
+  "gameId": 2,
+  "round": 2,
+  "date": "2026-02-06",
+  "opponent": "Kilsyth U12 Boys 6",
+  "venue": "Bentleigh Secondary College - Court 2",
+  "result": "L",
+  "score": {
+    "for": 34,
+    "against": 54
+  },
+  "quarters": [8, 8, 13, 5],
+  "players": [
+    { "number": 12, "name": "Ty Rossen", "pts": 4, "fouls": 0, "oreb": 2, "dreb": 1, "stl": 1, "to": 0, "blk": 1, "ast": 2 },
+    { "number": 13, "name": "Archie Stone", "pts": 1, "fouls": 1, "oreb": 5, "dreb": 5, "stl": 7, "to": 0, "blk": 0, "ast": 1 },
+    { "number": 14, "name": "Ethan Lieberthal", "pts": 6, "fouls": 1, "oreb": 1, "dreb": 0, "stl": 1, "to": 0, "blk": 0, "ast": 1 },
+    { "number": 24, "name": "Jediah Rayer", "pts": 0, "fouls": 3, "oreb": 0, "dreb": 1, "stl": 4, "to": 0, "blk": 0, "ast": 2 },
+    { "number": 40, "name": "Lenny McArthur", "pts": 6, "fouls": 1, "oreb": 0, "dreb": 2, "stl": 3, "to": 2, "blk": 0, "ast": 1 },
+    { "number": 44, "name": "James Sullivan", "pts": 0, "fouls": 4, "oreb": 0, "dreb": 0, "stl": 1, "to": 0, "blk": 1, "ast": 2 },
+    { "number": 51, "name": "Brooks Hurren", "pts": 2, "fouls": 1, "oreb": 2, "dreb": 0, "stl": 2, "to": 0, "blk": 0, "ast": 1 },
+    { "number": 89, "name": "Max Arden", "pts": 6, "fouls": 5, "oreb": 3, "dreb": 3, "stl": 4, "to": 0, "blk": 0, "ast": 1 },
+    { "number": 7, "name": "Jax", "pts": 2, "fouls": 0, "oreb": 2, "dreb": 0, "stl": 4, "to": 0, "blk": 0, "ast": 0 }
+  ]
+}
