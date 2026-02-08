@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Rep Team Performance Dashboard</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+  --bg0:#05070d;
+  --bg1:#0b1220;
+  --card:rgba(16,25,46,.92);
+  --border:rgba(255,255,255,.10);
+  --text:#f1f5ff;
+  --muted:#a6b4d6;
+  --accent:#4cc9f0;
+  --green:#2dff88;
+  --amber:#ffd166;
+  --red:#ff4d6d;
+  --radius:18px;
+  --shadow:0 30px 80px rgba(0,0,0,.65);
+  --font:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:var(--font);
+  background:
+    radial-gradient(1200px 600px at 10% -10%,#12204a33,transparent),
+    linear-gradient(180deg,var(--bg1),var(--bg0));
+  color:var(--text);
+}
+
+/* ===== HEADER ===== */
+header{
+  padding:20px 22px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+h1{
+  font-size:20px;
+  margin:0;
+  letter-spacing:.3px;
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+}
+
+button, select{
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 14px;
+  font-weight:600;
+  cursor:pointer;
+}
+button.active{
+  background:linear-gradient(135deg,#4cc9f0,#4895ef);
+  color:#04131f;
+  border:none;
+}
+
+/* ===== GRID ===== */
+.dashboard{
+  padding:18px;
+  display:grid;
+  gap:18px;
+}
+
+/* ===== SUMMARY CARDS ===== */
+.summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:14px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+
+.card h3{
+  margin:0;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.12em;
+}
+
+.card .value{
+  margin-top:6px;
+  font-size:26px;
+  font-weight:800;
+}
+
+/* ===== PLAYER LIST ===== */
+.players{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+
+.player{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px;
+}
+
+.player .name{
+  font-weight:800;
+}
+
+.player .meta{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+
+.stat{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-top:6px;
+}
+
+/* ===== CHART ===== */
+.chart-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🏀 Rep Team Performance</h1>
+  <div class="controls">
+    <button id="gameView" class="active">Game</button>
+    <button id="seasonView">Season</button>
+    <select id="gameSelect"></select>
+  </div>
+</header>
+
+<section class="dashboard">
+
+  <!-- SUMMARY -->
+  <div class="summary">
+    <div class="card">
+      <h3>Games</h3>
+      <div class="value" id="gamesPlayed">0</div>
+    </div>
+    <div class="card">
+      <h3>Avg Points</h3>
+      <div class="value" id="avgPoints">0</div>
+    </div>
+    <div class="card">
+      <h3>Avg Against</h3>
+      <div class="value" id="avgAgainst">0</div>
+    </div>
+    <div class="card">
+      <h3>Net</h3>
+      <div class="value" id="netRating">0</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-card">
+    <canvas id="scoreChart" height="120"></canvas>
+  </div>
+
+  <!-- PLAYERS -->
+  <div class="players" id="players"></div>
+
+</section>
+
+<script>
+/* ===== SAMPLE DATA (replace later with JSON fetch) ===== */
+const data = {
+  team:"U12 Rep",
+  games:[
+    {
+      id:1,
+      opponent:"Hawks",
+      pointsFor:45,
+      pointsAgainst:32,
+      players:[
+        {name:"Archie Stone", pos:"G", mins:18, pts:6, fouls:2},
+        {name:"Ethan Lieberthal", pos:"G", mins:16, pts:8, fouls:1},
+        {name:"Lucas Nguyen", pos:"W", mins:15, pts:10, fouls:3},
+        {name:"Jediah Rayer", pos:"W", mins:14, pts:9, fouls:2},
+        {name:"Lenny McArthur", pos:"C", mins:17, pts:12, fouls:2}
+      ]
+    }
+  ]
+};
+
+/* ===== INIT ===== */
+const gameSelect=document.getElementById("gameSelect");
+data.games.forEach(g=>{
+  const o=document.createElement("option");
+  o.value=g.id;
+  o.text=`Game ${g.id} vs ${g.opponent}`;
+  gameSelect.appendChild(o);
+});
+
+function renderGame(game){
+  document.getElementById("gamesPlayed").textContent=data.games.length;
+  document.getElementById("avgPoints").textContent=game.pointsFor;
+  document.getElementById("avgAgainst").textContent=game.pointsAgainst;
+  document.getElementById("netRating").textContent=game.pointsFor-game.pointsAgainst;
+
+  const pWrap=document.getElementById("players");
+  pWrap.innerHTML="";
+  game.players.forEach(p=>{
+    const d=document.createElement("div");
+    d.className="player";
+    d.innerHTML=`
+      <div class="name">${p.name}</div>
+      <div class="meta">${p.pos}</div>
+      <div class="stat"><span>Minutes</span><strong>${p.mins}</strong></div>
+      <div class="stat"><span>Points</span><strong>${p.pts}</strong></div>
+      <div class="stat"><span>Fouls</span><strong>${p.fouls}</strong></div>
+    `;
+    pWrap.appendChild(d);
+  });
+}
+
+renderGame(data.games[0]);
+
+/* ===== CHART ===== */
+new Chart(document.getElementById("scoreChart"),{
+  type:"bar",
+  data:{
+    labels:["For","Against"],
+    datasets:[{
+      data:[data.games[0].pointsFor,data.games[0].pointsAgainst],
+      backgroundColor:["#2dff88","#ff4d6d"]
+    }]
+  },
+  options:{
+    plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true}}
+  }
+});
+</script>
+
+</body>
+</html>
