@@ -193,7 +193,7 @@ let seasonData = null;
 let currentGame = null;
 
 /* ===== FETCH SEASON DATA ===== */
-fetch("./data/season-2026.json")
+fetch("data/season-2026.json")
   .then(res => res.json())
   .then(data => {
     seasonData = data;
