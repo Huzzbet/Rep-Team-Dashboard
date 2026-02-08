@@ -22,7 +22,7 @@
         { "number": 40, "name": "Lenny McArthur", "pts": 6, "oreb": 0, "dreb": 2, "stl": 3, "ast": 1, "fouls": 2 },
         { "number": 44, "name": "James Sullivan", "pts": 0, "oreb": 0, "dreb": 0, "stl": 1, "ast": 2, "fouls": 0 },
         { "number": 51, "name": "Brooks Hurren", "pts": 2, "oreb": 2, "dreb": 0, "stl": 2, "ast": 1, "fouls": 1 },
-        { "number": 89, "name": "Max Arden", "pts": 6, "oreb": 3, "dreb": 3, "stl": 4, "ast": 1, "fouls": 5 },
+        { "number": 89, "name": "Max Arden", "pts": 6, "oreb": 3, "dreb": 3, "stl": 4, "ast": 1, "fouls": 1 },
         { "number": 7, "name": "Jax", "pts": 2, "oreb": 2, "dreb": 0, "stl": 4, "ast": 0, "fouls": 0 }
       ]
     }
