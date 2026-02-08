@@ -193,14 +193,19 @@ let seasonData = null;
 let currentGame = null;
 
 /* ===== FETCH SEASON DATA ===== */
-fetch("data/season-2026.json")
-  .then(res => res.json())
+fetch("data/season-2026.json?t=" + Date.now())
+  .then(res => {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  })
   .then(data => {
+    console.log("Season data loaded:", data);
     seasonData = data;
     initDashboard();
   })
   .catch(err => {
     console.error("Failed to load season data", err);
+    alert("Failed to load season data. Check JSON path.");
   });
 
 /* ===== INIT ===== */
