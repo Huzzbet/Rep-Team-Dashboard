@@ -216,20 +216,21 @@ function stat(v){
 }
 
 /* ===== IMPACT ===== */
+function impact(p){
+  return (
+    stat(p.points) +
+    stat(p.rebounds) +
+    (stat(p.steals) * 1.5) +
+    stat(p.assists) -
+    (stat(p.fouls) * 0.5)
+  );
+}
 function impactTier(v){
   if (v >= 7) return ["High Impact", "green"];
   if (v >= 3) return ["Solid", "amber"];
   if (v >= 1) return ["Opportunity to Grow", "blue"];
   return ["Limited Impact", "red"];
-  );
 }
-
-function impactTier(v){
-  if (v >= 10) return ["High Impact","green"];
-  if (v >= 5) return ["Solid","amber"];
-  return ["Needs Lift","red"];
-}
-
 /* ===== FETCH ===== */
 fetch("data/season-2026.json?t=" + Date.now())
   .then(r => r.json())
@@ -270,7 +271,6 @@ function render(){
     renderSeason();
   }
 }
-
 /* ===== GAME VIEW ===== */
 function renderGame(g){
   document.getElementById("gamesPlayed").textContent = seasonData.games.length;
