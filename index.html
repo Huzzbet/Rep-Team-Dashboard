@@ -216,13 +216,11 @@ function stat(v){
 }
 
 /* ===== IMPACT ===== */
-function impact(p){
-  return (
-    stat(p.points) +
-    stat(p.rebounds) +
-    (stat(p.steals) * 1.5) +
-    stat(p.assists) -
-    (stat(p.fouls) * 0.5)
+function impactTier(v){
+  if (v >= 7) return ["High Impact", "green"];
+  if (v >= 3) return ["Solid", "amber"];
+  if (v >= 1) return ["Opportunity to Grow", "blue"];
+  return ["Limited Impact", "red"];
   );
 }
 
