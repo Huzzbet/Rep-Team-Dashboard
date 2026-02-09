@@ -43,10 +43,7 @@ header{
   align-items:center;
 }
 
-h1{
-  font-size:20px;
-  margin:0;
-}
+h1{ font-size:20px; margin:0; }
 
 .controls{
   display:flex;
@@ -117,9 +114,7 @@ button.active{
   padding:14px;
 }
 
-.player .name{
-  font-weight:800;
-}
+.player .name{ font-weight:800; }
 
 .player .meta{
   font-size:12px;
@@ -151,6 +146,7 @@ button.active{
 
 .green{ background:rgba(45,255,136,.18); color:var(--green); }
 .amber{ background:rgba(255,209,102,.18); color:var(--amber); }
+.blue{ background:rgba(76,201,240,.18); color:var(--accent); }
 .red{ background:rgba(255,77,109,.18); color:var(--red); }
 
 /* ===== CHART ===== */
@@ -176,32 +172,17 @@ button.active{
 
 <section class="dashboard">
 
-  <!-- SUMMARY -->
   <div class="summary">
-    <div class="card">
-      <h3>Games</h3>
-      <div class="value" id="gamesPlayed">0</div>
-    </div>
-    <div class="card">
-      <h3>Points</h3>
-      <div class="value" id="avgPoints">0</div>
-    </div>
-    <div class="card">
-      <h3>Against</h3>
-      <div class="value" id="avgAgainst">0</div>
-    </div>
-    <div class="card">
-      <h3>Net</h3>
-      <div class="value" id="netRating">0</div>
-    </div>
+    <div class="card"><h3>Games</h3><div class="value" id="gamesPlayed">0</div></div>
+    <div class="card"><h3>Points</h3><div class="value" id="avgPoints">0</div></div>
+    <div class="card"><h3>Against</h3><div class="value" id="avgAgainst">0</div></div>
+    <div class="card"><h3>Net</h3><div class="value" id="netRating">0</div></div>
   </div>
 
-  <!-- CHART -->
   <div class="chart-card">
     <canvas id="scoreChart" height="120"></canvas>
   </div>
 
-  <!-- PLAYERS -->
   <div class="players" id="players"></div>
 
 </section>
@@ -225,12 +206,14 @@ function impact(p){
     (stat(p.fouls) * 0.5)
   );
 }
+
 function impactTier(v){
-  if (v >= 7) return ["High Impact", "green"];
-  if (v >= 3) return ["Solid", "amber"];
-  if (v >= 1) return ["Opportunity to Grow", "blue"];
-  return ["Limited Impact", "red"];
+  if (v >= 7) return ["High Impact","green"];
+  if (v >= 3) return ["Solid","amber"];
+  if (v >= 1) return ["Opportunity to Grow","blue"];
+  return ["Limited Impact","red"];
 }
+
 /* ===== FETCH ===== */
 fetch("data/season-2026.json?t=" + Date.now())
   .then(r => r.json())
@@ -248,9 +231,9 @@ function init(){
     sel.appendChild(o);
   });
 
-  sel.onchange=()=>render();
-  document.getElementById("gameBtn").onclick=()=>switchView("game");
-  document.getElementById("seasonBtn").onclick=()=>switchView("season");
+  sel.onchange = render;
+  gameBtn.onclick = () => switchView("game");
+  seasonBtn.onclick = () => switchView("season");
 
   render();
 }
@@ -258,8 +241,8 @@ function init(){
 /* ===== VIEW SWITCH ===== */
 function switchView(mode){
   viewMode = mode;
-  document.getElementById("gameBtn").classList.toggle("active", mode==="game");
-  document.getElementById("seasonBtn").classList.toggle("active", mode==="season");
+  gameBtn.classList.toggle("active", mode==="game");
+  seasonBtn.classList.toggle("active", mode==="season");
   render();
 }
 
@@ -270,16 +253,16 @@ function render(){
   } else {
     renderSeason();
   }
+  renderChart();
 }
+
 /* ===== GAME VIEW ===== */
 function renderGame(g){
-  document.getElementById("gamesPlayed").textContent = seasonData.games.length;
-  document.getElementById("avgPoints").textContent = g.teamScore;
-  document.getElementById("avgAgainst").textContent = g.oppScore;
-  document.getElementById("netRating").textContent = g.teamScore - g.oppScore;
-
+  gamesPlayed.textContent = seasonData.games.length;
+  avgPoints.textContent = g.teamScore;
+  avgAgainst.textContent = g.oppScore;
+  netRating.textContent = g.teamScore - g.oppScore;
   renderPlayers(g.players);
-  renderChart(g.teamScore, g.oppScore);
 }
 
 /* ===== SEASON VIEW ===== */
@@ -288,51 +271,44 @@ function renderSeason(){
   const forPts = seasonData.games.reduce((a,g)=>a+g.teamScore,0);
   const agPts  = seasonData.games.reduce((a,g)=>a+g.oppScore,0);
 
-  document.getElementById("gamesPlayed").textContent = games;
-  document.getElementById("avgPoints").textContent = Math.round(forPts/games);
-  document.getElementById("avgAgainst").textContent = Math.round(agPts/games);
-  document.getElementById("netRating").textContent = Math.round((forPts-agPts)/games);
+  gamesPlayed.textContent = games;
+  avgPoints.textContent = Math.round(forPts/games);
+  avgAgainst.textContent = Math.round(agPts/games);
+  netRating.textContent = Math.round((forPts-agPts)/games);
 
   renderPlayers(
     Object.values(
       seasonData.games.flatMap(g=>g.players)
         .reduce((m,p)=>{
-          const k=p.number;
-          if(!m[k]) m[k]={...p};
-          else{
-            ["points","rebounds","steals","assists","fouls"].forEach(s=>{
-              m[k][s]=stat(m[k][s])+stat(p[s]);
-            });
-          }
+          if(!m[p.number]) m[p.number]={...p};
+          else ["points","rebounds","steals","assists","fouls"].forEach(s=>{
+            m[p.number][s]=stat(m[p.number][s])+stat(p[s]);
+          });
           return m;
         },{})
     )
   );
-
-  renderChart(forPts/games, agPts/games);
 }
 
 /* ===== PLAYERS ===== */
 function renderPlayers(players){
-  const wrap=document.getElementById("players");
-  wrap.innerHTML="";
+  playersEl = document.getElementById("players");
+  playersEl.innerHTML = "";
 
   players
     .filter(p=>p.name && p.number!==null)
     .forEach(p=>{
-      const i=impact(p);
-      const [label,color]=impactTier(i);
+      const i = impact(p);
+      const [label,color] = impactTier(i);
 
-      wrap.innerHTML+=`
+      playersEl.innerHTML += `
         <div class="player">
           <div class="name">#${p.number} ${p.name}</div>
           <div class="meta">${viewMode==="game"?"Game Stats":"Season Stats"}</div>
-
           <div class="impact-row">
             <strong>${i.toFixed(1)}</strong>
             <span class="impact-badge ${color}">${label}</span>
           </div>
-
           <div class="stat"><span>Points</span><strong>${stat(p.points)}</strong></div>
           <div class="stat"><span>Rebounds</span><strong>${stat(p.rebounds)}</strong></div>
           <div class="stat"><span>Steals</span><strong>${stat(p.steals)}</strong></div>
@@ -344,48 +320,36 @@ function renderPlayers(players){
 
 /* ===== CHART ===== */
 function renderChart(){
-  const ctx = document.getElementById("scoreChart").getContext("2d");
-  if(scoreChart) scoreChart.destroy();
-
-  const labels = seasonData.games.map(g => `R${g.round}`);
-  const forData = seasonData.games.map(g => g.teamScore);
-  const againstData = seasonData.games.map(g => g.oppScore);
+  const ctx = scoreChart?.getContext ? scoreChart.getContext("2d") : document.getElementById("scoreChart").getContext("2d");
+  if(scoreChart && scoreChart.destroy) scoreChart.destroy();
 
   scoreChart = new Chart(ctx,{
     type:"line",
     data:{
-      labels,
+      labels: seasonData.games.map(g=>`R${g.round}`),
       datasets:[
         {
           label:"For",
-          data: forData,
+          data: seasonData.games.map(g=>g.teamScore),
           borderColor:"#2dff88",
           backgroundColor:"rgba(45,255,136,.15)",
-          tension:0.35,
-          fill:true,
-          pointRadius:4,
-          pointHoverRadius:6
+          tension:.35,
+          fill:true
         },
         {
           label:"Against",
-          data: againstData,
+          data: seasonData.games.map(g=>g.oppScore),
           borderColor:"#ff4d6d",
           backgroundColor:"rgba(255,77,109,.15)",
-          tension:0.35,
-          fill:true,
-          pointRadius:4,
-          pointHoverRadius:6
+          tension:.35,
+          fill:true
         }
       ]
     },
     options:{
       responsive:true,
-      plugins:{
-        legend:{ display:true }
-      },
-      scales:{
-        y:{ beginAtZero:true }
-      }
+      plugins:{ legend:{display:true} },
+      scales:{ y:{ beginAtZero:true } }
     }
   });
 }
