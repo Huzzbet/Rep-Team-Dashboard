@@ -46,7 +46,6 @@ header{
 h1{
   font-size:20px;
   margin:0;
-  letter-spacing:.3px;
 }
 
 .controls{
@@ -61,12 +60,6 @@ button, select{
   border-radius:999px;
   padding:8px 14px;
   font-weight:600;
-  cursor:pointer;
-}
-button.active{
-  background:linear-gradient(135deg,#4cc9f0,#4895ef);
-  color:#04131f;
-  border:none;
 }
 
 /* ===== GRID ===== */
@@ -76,7 +69,7 @@ button.active{
   gap:18px;
 }
 
-/* ===== SUMMARY CARDS ===== */
+/* ===== SUMMARY ===== */
 .summary{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -95,7 +88,6 @@ button.active{
   margin:0;
   font-size:12px;
   color:var(--muted);
-  letter-spacing:.12em;
 }
 
 .card .value{
@@ -104,7 +96,7 @@ button.active{
   font-weight:800;
 }
 
-/* ===== PLAYER LIST ===== */
+/* ===== PLAYERS ===== */
 .players{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -125,7 +117,7 @@ button.active{
 .player .meta{
   font-size:12px;
   color:var(--muted);
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 
 .stat{
@@ -134,6 +126,25 @@ button.active{
   font-size:13px;
   margin-top:6px;
 }
+
+/* ===== IMPACT ===== */
+.impact-row{
+  display:flex;
+  gap:8px;
+  margin:8px 0;
+  align-items:center;
+  font-size:12px;
+}
+
+.impact-badge{
+  padding:3px 8px;
+  border-radius:999px;
+  font-weight:700;
+}
+
+.green{ background:rgba(45,255,136,.18); color:var(--green); }
+.amber{ background:rgba(255,209,102,.18); color:var(--amber); }
+.red{ background:rgba(255,77,109,.18); color:var(--red); }
 
 /* ===== CHART ===== */
 .chart-card{
@@ -150,8 +161,6 @@ button.active{
 <header>
   <h1>🏀 Rep Team Performance</h1>
   <div class="controls">
-    <button id="gameView" class="active">Game</button>
-    <button id="seasonView">Season</button>
     <select id="gameSelect"></select>
   </div>
 </header>
@@ -165,11 +174,11 @@ button.active{
       <div class="value" id="gamesPlayed">0</div>
     </div>
     <div class="card">
-      <h3>Avg Points</h3>
+      <h3>Points</h3>
       <div class="value" id="avgPoints">0</div>
     </div>
     <div class="card">
-      <h3>Avg Against</h3>
+      <h3>Against</h3>
       <div class="value" id="avgAgainst">0</div>
     </div>
     <div class="card">
@@ -189,102 +198,89 @@ button.active{
 </section>
 
 <script>
-let seasonData = null;
-let currentGame = null;
+let seasonData, scoreChart;
 
-/* ===== FETCH SEASON DATA ===== */
+/* ===== FETCH ===== */
 fetch("data/season-2026.json?t=" + Date.now())
-  .then(res => {
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-  })
-  .then(data => {
-    console.log("Season data loaded:", data);
-    seasonData = data;
-    initDashboard();
-  })
-  .catch(err => {
-    console.error("Failed to load season data", err);
-    alert("Failed to load season data. Check JSON path.");
-  });
+  .then(r => r.json())
+  .then(d => { seasonData = d; init(); });
 
 /* ===== INIT ===== */
-function initDashboard(){
-  const gameSelect = document.getElementById("gameSelect");
-  gameSelect.innerHTML = "";
+function init(){
+  const sel = document.getElementById("gameSelect");
+  sel.innerHTML = "";
 
-  seasonData.games.forEach((g, index) => {
-    const opt = document.createElement("option");
-    opt.value = index;
-    opt.text = `Round ${g.round} vs ${g.opponent}`;
-    gameSelect.appendChild(opt);
+  seasonData.games.forEach((g,i)=>{
+    const o=document.createElement("option");
+    o.value=i;
+    o.text=`Round ${g.round} vs ${g.opponent}`;
+    sel.appendChild(o);
   });
 
-  gameSelect.addEventListener("change", e => {
-    renderGame(seasonData.games[e.target.value]);
-  });
-
-  // Load first game by default
+  sel.onchange=()=>renderGame(seasonData.games[sel.value]);
   renderGame(seasonData.games[0]);
 }
 
-/* ===== RENDER GAME ===== */
-function renderGame(game){
-  currentGame = game;
+/* ===== IMPACT ===== */
+function impact(p){
+  return p.points + p.rebounds + (p.steals*1.5) + p.assists - (p.fouls*0.5);
+}
+function impactTier(v){
+  if(v>=10) return ["High Impact","green"];
+  if(v>=5) return ["Solid","amber"];
+  return ["Needs Lift","red"];
+}
 
-  document.getElementById("gamesPlayed").textContent =
-    seasonData.games.length;
+/* ===== GAME ===== */
+function renderGame(g){
+  document.getElementById("gamesPlayed").textContent = seasonData.games.length;
+  document.getElementById("avgPoints").textContent = g.teamScore;
+  document.getElementById("avgAgainst").textContent = g.oppScore;
+  document.getElementById("netRating").textContent = g.teamScore - g.oppScore;
 
-  document.getElementById("avgPoints").textContent =
-    game.score.for;
-
-  document.getElementById("avgAgainst").textContent =
-    game.score.against;
-
-  document.getElementById("netRating").textContent =
-    game.score.for - game.score.against;
-
-  renderPlayers(game.players);
-  renderScoreChart(game);
+  renderPlayers(g.players);
+  renderChart(g);
 }
 
 /* ===== PLAYERS ===== */
 function renderPlayers(players){
-  const wrap = document.getElementById("players");
-  wrap.innerHTML = "";
+  const wrap=document.getElementById("players");
+  wrap.innerHTML="";
 
-  players.forEach(p => {
-    const card = document.createElement("div");
-    card.className = "player";
+  players.forEach(p=>{
+    const i=impact(p);
+    const [label,color]=impactTier(i);
 
-    card.innerHTML = `
-      <div class="name">#${p.number} ${p.name}</div>
-      <div class="meta">Game Stats</div>
+    wrap.innerHTML+=`
+      <div class="player">
+        <div class="name">#${p.number} ${p.name}</div>
+        <div class="meta">Game Stats</div>
 
-      <div class="stat"><span>Points</span><strong>${p.pts}</strong></div>
-      <div class="stat"><span>Rebounds</span><strong>${p.oreb + p.dreb}</strong></div>
-      <div class="stat"><span>Steals</span><strong>${p.stl}</strong></div>
-      <div class="stat"><span>Assists</span><strong>${p.ast}</strong></div>
-      <div class="stat"><span>Fouls</span><strong>${p.fouls}</strong></div>
-    `;
-    wrap.appendChild(card);
+        <div class="impact-row">
+          <strong>${i.toFixed(1)}</strong>
+          <span class="impact-badge ${color}">${label}</span>
+        </div>
+
+        <div class="stat"><span>Points</span><strong>${p.points}</strong></div>
+        <div class="stat"><span>Rebounds</span><strong>${p.rebounds}</strong></div>
+        <div class="stat"><span>Steals</span><strong>${p.steals}</strong></div>
+        <div class="stat"><span>Assists</span><strong>${p.assists}</strong></div>
+        <div class="stat"><span>Fouls</span><strong>${p.fouls}</strong></div>
+      </div>`;
   });
 }
 
 /* ===== CHART ===== */
-let scoreChart = null;
-
-function renderScoreChart(game){
-  const ctx = document.getElementById("scoreChart").getContext("2d");
-
+function renderChart(g){
+  const ctx=document.getElementById("scoreChart").getContext("2d");
   if(scoreChart) scoreChart.destroy();
 
-  scoreChart = new Chart(ctx,{
+  scoreChart=new Chart(ctx,{
     type:"bar",
     data:{
       labels:["For","Against"],
       datasets:[{
-        data:[game.score.for, game.score.against],
+        data:[g.teamScore,g.oppScore],
         backgroundColor:["#2dff88","#ff4d6d"]
       }]
     },
