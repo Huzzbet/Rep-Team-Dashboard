@@ -3,11 +3,42 @@
   "team": "Rep Team",
   "games": [
     {
+      "round": 1,
+      "opponent": "Camberwell U12 Boys 6",
+      "date": "2026-01-30",
+      "venue": "Waverley Basketball Stadium",
+      "court": "Court 4",
+      "teamScore": 35,
+      "oppScore": 26,
+      "result": "W",
+      "margin": 9,
+      "quarters": {
+        "Q1": { "us": 2, "them": 5 },
+        "Q2": { "us": 6, "them": 10 },
+        "Q3": { "us": 14, "them": 4 },
+        "Q4": { "us": 13, "them": 7 }
+      },
+      "players": [
+        { "number": 12, "name": "Ty Rossen", "points": 10, "fouls": 1 },
+        { "number": 13, "name": "Archie Stone", "points": 2, "fouls": 4 },
+        { "number": 14, "name": "Ethan Lieberthal", "points": 8, "fouls": 2 },
+        { "number": 23, "name": "Lucas Nguyen", "points": 0, "fouls": 2 },
+        { "number": 24, "name": "Jediah Rayer", "points": 0, "fouls": 0 },
+        { "number": 40, "name": "Lenny McArthur", "points": 2, "fouls": 1 },
+        { "number": 44, "name": "James Sullivan", "points": 0, "fouls": 1 },
+        { "number": 51, "name": "Brooks Hurren", "points": 2, "fouls": 0 },
+        { "number": 89, "name": "Max Arden", "points": 2, "fouls": 4 },
+        { "number": null, "name": "Private Player", "points": 9, "fouls": 2 }
+      ],
+      "notes": "Slow first half, dominant second half. Huge Q3 (+10)."
+    },
+    {
       "round": 2,
       "opponent": "Kilsyth U12",
       "date": "2026-02-07",
       "teamScore": 34,
       "oppScore": 54,
+      "result": "L",
       "players": [
         {
           "number": 12,
