@@ -343,22 +343,49 @@ function renderPlayers(players){
 }
 
 /* ===== CHART ===== */
-function renderChart(forVal, agVal){
-  const ctx=document.getElementById("scoreChart").getContext("2d");
+function renderChart(){
+  const ctx = document.getElementById("scoreChart").getContext("2d");
   if(scoreChart) scoreChart.destroy();
 
-  scoreChart=new Chart(ctx,{
-    type:"bar",
+  const labels = seasonData.games.map(g => `R${g.round}`);
+  const forData = seasonData.games.map(g => g.teamScore);
+  const againstData = seasonData.games.map(g => g.oppScore);
+
+  scoreChart = new Chart(ctx,{
+    type:"line",
     data:{
-      labels:["For","Against"],
-      datasets:[{
-        data:[forVal,agVal],
-        backgroundColor:["#2dff88","#ff4d6d"]
-      }]
+      labels,
+      datasets:[
+        {
+          label:"For",
+          data: forData,
+          borderColor:"#2dff88",
+          backgroundColor:"rgba(45,255,136,.15)",
+          tension:0.35,
+          fill:true,
+          pointRadius:4,
+          pointHoverRadius:6
+        },
+        {
+          label:"Against",
+          data: againstData,
+          borderColor:"#ff4d6d",
+          backgroundColor:"rgba(255,77,109,.15)",
+          tension:0.35,
+          fill:true,
+          pointRadius:4,
+          pointHoverRadius:6
+        }
+      ]
     },
     options:{
-      plugins:{legend:{display:false}},
-      scales:{y:{beginAtZero:true}}
+      responsive:true,
+      plugins:{
+        legend:{ display:true }
+      },
+      scales:{
+        y:{ beginAtZero:true }
+      }
     }
   });
 }
