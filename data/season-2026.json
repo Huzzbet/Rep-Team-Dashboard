@@ -1,29 +1,68 @@
 {
   "season": "2026",
-  "team": "McKinnon U12 Boys 6",
+  "team": "Rep Team",
   "games": [
     {
-      "gameId": 2,
       "round": 2,
-      "date": "2026-02-06",
-      "opponent": "Kilsyth U12 Boys 6",
-      "venue": "Bentleigh Secondary College – Court 2",
-      "result": "L",
-      "score": {
-        "for": 34,
-        "against": 54
-      },
-      "quarters": [8, 8, 13, 5],
+      "opponent": "Kilsyth U12",
+      "date": "2026-02-07",
+      "teamScore": 34,
+      "oppScore": 54,
       "players": [
-        { "number": 12, "name": "Ty Rossen", "pts": 4, "oreb": 2, "dreb": 1, "stl": 1, "ast": 1, "fouls": 1 },
-        { "number": 13, "name": "Archie Stone", "pts": 1, "oreb": 5, "dreb": 5, "stl": 7, "ast": 1, "fouls": 1 },
-        { "number": 14, "name": "Ethan Lieberthal", "pts": 6, "oreb": 1, "dreb": 0, "stl": 1, "ast": 1, "fouls": 1 },
-        { "number": 24, "name": "Jediah Rayer", "pts": 0, "oreb": 0, "dreb": 1, "stl": 4, "ast": 2, "fouls": 3 },
-        { "number": 40, "name": "Lenny McArthur", "pts": 6, "oreb": 0, "dreb": 2, "stl": 3, "ast": 1, "fouls": 2 },
-        { "number": 44, "name": "James Sullivan", "pts": 0, "oreb": 0, "dreb": 0, "stl": 1, "ast": 2, "fouls": 0 },
-        { "number": 51, "name": "Brooks Hurren", "pts": 2, "oreb": 2, "dreb": 0, "stl": 2, "ast": 1, "fouls": 1 },
-        { "number": 89, "name": "Max Arden", "pts": 6, "oreb": 3, "dreb": 3, "stl": 4, "ast": 1, "fouls": 1 },
-        { "number": 7, "name": "Jax", "pts": 2, "oreb": 2, "dreb": 0, "stl": 4, "ast": 0, "fouls": 0 }
+        {
+          "number": 12,
+          "name": "Ty Rossen",
+          "points": 4,
+          "rebounds": 3,
+          "steals": 1,
+          "assists": 1,
+          "fouls": 1
+        },
+        {
+          "number": 13,
+          "name": "Archie Stone",
+          "points": 1,
+          "rebounds": 10,
+          "steals": 7,
+          "assists": 2,
+          "fouls": 1
+        },
+        {
+          "number": 44,
+          "name": "James Sullivan",
+          "points": 0,
+          "rebounds": 0,
+          "steals": 1,
+          "assists": 2,
+          "fouls": 0
+        },
+        {
+          "number": 51,
+          "name": "Brooks Hurren",
+          "points": 2,
+          "rebounds": 2,
+          "steals": 2,
+          "assists": 1,
+          "fouls": 1
+        },
+        {
+          "number": 89,
+          "name": "Max Arden",
+          "points": 6,
+          "rebounds": 6,
+          "steals": 4,
+          "assists": 1,
+          "fouls": 1
+        },
+        {
+          "number": 7,
+          "name": "Jax",
+          "points": 2,
+          "rebounds": 2,
+          "steals": 4,
+          "assists": 0,
+          "fouls": 0
+        }
       ]
     }
   ]
