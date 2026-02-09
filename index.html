@@ -128,24 +128,25 @@ button, select{
 }
 
 /* ===== IMPACT ===== */
-.impact-row{
-  display:flex;
-  gap:8px;
-  margin:8px 0;
-  align-items:center;
-  font-size:12px;
+function stat(val) {
+  return Number.isFinite(val) ? val : 0;
 }
 
-.impact-badge{
-  padding:3px 8px;
-  border-radius:999px;
-  font-weight:700;
+function impact(p){
+  const points   = stat(p.points);
+  const rebounds = stat(p.rebounds);
+  const steals   = stat(p.steals);
+  const assists  = stat(p.assists);
+  const fouls    = stat(p.fouls);
+
+  return (
+    points +
+    rebounds +
+    (steals * 1.5) +
+    assists -
+    (fouls * 0.5)
+  );
 }
-
-.green{ background:rgba(45,255,136,.18); color:var(--green); }
-.amber{ background:rgba(255,209,102,.18); color:var(--amber); }
-.red{ background:rgba(255,77,109,.18); color:var(--red); }
-
 /* ===== CHART ===== */
 .chart-card{
   background:var(--card);
@@ -261,11 +262,12 @@ function renderPlayers(players){
           <span class="impact-badge ${color}">${label}</span>
         </div>
 
-        <div class="stat"><span>Points</span><strong>${p.points}</strong></div>
-        <div class="stat"><span>Rebounds</span><strong>${p.rebounds}</strong></div>
-        <div class="stat"><span>Steals</span><strong>${p.steals}</strong></div>
-        <div class="stat"><span>Assists</span><strong>${p.assists}</strong></div>
-        <div class="stat"><span>Fouls</span><strong>${p.fouls}</strong></div>
+<div class="stat"><span>Points</span><strong>${stat(p.points)}</strong></div>
+<div class="stat"><span>Rebounds</span><strong>${stat(p.rebounds)}</strong></div>
+<div class="stat"><span>Steals</span><strong>${stat(p.steals)}</strong></div>
+<div class="stat"><span>Assists</span><strong>${stat(p.assists)}</strong></div>
+<div class="stat"><span>Fouls</span><strong>${stat(p.fouls)}</strong></div>
+
       </div>`;
   });
 }
