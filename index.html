@@ -60,6 +60,13 @@ button, select{
   border-radius:999px;
   padding:8px 14px;
   font-weight:600;
+  cursor:pointer;
+}
+
+button.active{
+  background:linear-gradient(135deg,#4cc9f0,#4895ef);
+  color:#04131f;
+  border:none;
 }
 
 /* ===== GRID ===== */
@@ -128,25 +135,24 @@ button, select{
 }
 
 /* ===== IMPACT ===== */
-function stat(val) {
-  return Number.isFinite(val) ? val : 0;
+.impact-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin:8px 0;
+  font-size:12px;
 }
 
-function impact(p){
-  const points   = stat(p.points);
-  const rebounds = stat(p.rebounds);
-  const steals   = stat(p.steals);
-  const assists  = stat(p.assists);
-  const fouls    = stat(p.fouls);
-
-  return (
-    points +
-    rebounds +
-    (steals * 1.5) +
-    assists -
-    (fouls * 0.5)
-  );
+.impact-badge{
+  padding:3px 8px;
+  border-radius:999px;
+  font-weight:700;
 }
+
+.green{ background:rgba(45,255,136,.18); color:var(--green); }
+.amber{ background:rgba(255,209,102,.18); color:var(--amber); }
+.red{ background:rgba(255,77,109,.18); color:var(--red); }
+
 /* ===== CHART ===== */
 .chart-card{
   background:var(--card);
@@ -162,6 +168,8 @@ function impact(p){
 <header>
   <h1>🏀 Rep Team Performance</h1>
   <div class="controls">
+    <button id="gameBtn" class="active">Game</button>
+    <button id="seasonBtn">Season</button>
     <select id="gameSelect"></select>
   </div>
 </header>
@@ -200,6 +208,29 @@ function impact(p){
 
 <script>
 let seasonData, scoreChart;
+let viewMode = "game";
+
+/* ===== SAFE STAT ===== */
+function stat(v){
+  return Number.isFinite(v) ? v : 0;
+}
+
+/* ===== IMPACT ===== */
+function impact(p){
+  return (
+    stat(p.points) +
+    stat(p.rebounds) +
+    (stat(p.steals) * 1.5) +
+    stat(p.assists) -
+    (stat(p.fouls) * 0.5)
+  );
+}
+
+function impactTier(v){
+  if (v >= 10) return ["High Impact","green"];
+  if (v >= 5) return ["Solid","amber"];
+  return ["Needs Lift","red"];
+}
 
 /* ===== FETCH ===== */
 fetch("data/season-2026.json?t=" + Date.now())
@@ -218,21 +249,31 @@ function init(){
     sel.appendChild(o);
   });
 
-  sel.onchange=()=>renderGame(seasonData.games[sel.value]);
-  renderGame(seasonData.games[0]);
+  sel.onchange=()=>render();
+  document.getElementById("gameBtn").onclick=()=>switchView("game");
+  document.getElementById("seasonBtn").onclick=()=>switchView("season");
+
+  render();
 }
 
-/* ===== IMPACT ===== */
-function impact(p){
-  return p.points + p.rebounds + (p.steals*1.5) + p.assists - (p.fouls*0.5);
-}
-function impactTier(v){
-  if(v>=10) return ["High Impact","green"];
-  if(v>=5) return ["Solid","amber"];
-  return ["Needs Lift","red"];
+/* ===== VIEW SWITCH ===== */
+function switchView(mode){
+  viewMode = mode;
+  document.getElementById("gameBtn").classList.toggle("active", mode==="game");
+  document.getElementById("seasonBtn").classList.toggle("active", mode==="season");
+  render();
 }
 
-/* ===== GAME ===== */
+/* ===== RENDER ===== */
+function render(){
+  if(viewMode==="game"){
+    renderGame(seasonData.games[gameSelect.value || 0]);
+  } else {
+    renderSeason();
+  }
+}
+
+/* ===== GAME VIEW ===== */
 function renderGame(g){
   document.getElementById("gamesPlayed").textContent = seasonData.games.length;
   document.getElementById("avgPoints").textContent = g.teamScore;
@@ -240,7 +281,37 @@ function renderGame(g){
   document.getElementById("netRating").textContent = g.teamScore - g.oppScore;
 
   renderPlayers(g.players);
-  renderChart(g);
+  renderChart(g.teamScore, g.oppScore);
+}
+
+/* ===== SEASON VIEW ===== */
+function renderSeason(){
+  const games = seasonData.games.length;
+  const forPts = seasonData.games.reduce((a,g)=>a+g.teamScore,0);
+  const agPts  = seasonData.games.reduce((a,g)=>a+g.oppScore,0);
+
+  document.getElementById("gamesPlayed").textContent = games;
+  document.getElementById("avgPoints").textContent = Math.round(forPts/games);
+  document.getElementById("avgAgainst").textContent = Math.round(agPts/games);
+  document.getElementById("netRating").textContent = Math.round((forPts-agPts)/games);
+
+  renderPlayers(
+    Object.values(
+      seasonData.games.flatMap(g=>g.players)
+        .reduce((m,p)=>{
+          const k=p.number;
+          if(!m[k]) m[k]={...p};
+          else{
+            ["points","rebounds","steals","assists","fouls"].forEach(s=>{
+              m[k][s]=stat(m[k][s])+stat(p[s]);
+            });
+          }
+          return m;
+        },{})
+    )
+  );
+
+  renderChart(forPts/games, agPts/games);
 }
 
 /* ===== PLAYERS ===== */
@@ -248,32 +319,33 @@ function renderPlayers(players){
   const wrap=document.getElementById("players");
   wrap.innerHTML="";
 
-  players.forEach(p=>{
-    const i=impact(p);
-    const [label,color]=impactTier(i);
+  players
+    .filter(p=>p.name && p.number!==null)
+    .forEach(p=>{
+      const i=impact(p);
+      const [label,color]=impactTier(i);
 
-    wrap.innerHTML+=`
-      <div class="player">
-        <div class="name">#${p.number} ${p.name}</div>
-        <div class="meta">Game Stats</div>
+      wrap.innerHTML+=`
+        <div class="player">
+          <div class="name">#${p.number} ${p.name}</div>
+          <div class="meta">${viewMode==="game"?"Game Stats":"Season Stats"}</div>
 
-        <div class="impact-row">
-          <strong>${i.toFixed(1)}</strong>
-          <span class="impact-badge ${color}">${label}</span>
-        </div>
+          <div class="impact-row">
+            <strong>${i.toFixed(1)}</strong>
+            <span class="impact-badge ${color}">${label}</span>
+          </div>
 
-<div class="stat"><span>Points</span><strong>${stat(p.points)}</strong></div>
-<div class="stat"><span>Rebounds</span><strong>${stat(p.rebounds)}</strong></div>
-<div class="stat"><span>Steals</span><strong>${stat(p.steals)}</strong></div>
-<div class="stat"><span>Assists</span><strong>${stat(p.assists)}</strong></div>
-<div class="stat"><span>Fouls</span><strong>${stat(p.fouls)}</strong></div>
-
-      </div>`;
-  });
+          <div class="stat"><span>Points</span><strong>${stat(p.points)}</strong></div>
+          <div class="stat"><span>Rebounds</span><strong>${stat(p.rebounds)}</strong></div>
+          <div class="stat"><span>Steals</span><strong>${stat(p.steals)}</strong></div>
+          <div class="stat"><span>Assists</span><strong>${stat(p.assists)}</strong></div>
+          <div class="stat"><span>Fouls</span><strong>${stat(p.fouls)}</strong></div>
+        </div>`;
+    });
 }
 
 /* ===== CHART ===== */
-function renderChart(g){
+function renderChart(forVal, agVal){
   const ctx=document.getElementById("scoreChart").getContext("2d");
   if(scoreChart) scoreChart.destroy();
 
@@ -282,7 +354,7 @@ function renderChart(g){
     data:{
       labels:["For","Against"],
       datasets:[{
-        data:[g.teamScore,g.oppScore],
+        data:[forVal,agVal],
         backgroundColor:["#2dff88","#ff4d6d"]
       }]
     },
